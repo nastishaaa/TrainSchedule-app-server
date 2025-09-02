@@ -7,27 +7,33 @@ import { THIRTY_DAYS } from "../constants/index.js";
 import { loginUser, registerUser, logoutUser } from "../services/auth.js";
 import { LoginDTO, RegisterDTO, Session } from "../types/auth.js"
 
-const setupSession = (res: Response, session: Session) => {
+
+const setupSession = (res: Response, session: { refreshToken: string; sessionId: number }) => {
     res.cookie('refreshToken', session.refreshToken, {
         httpOnly: true,
         expires: new Date(Date.now() + THIRTY_DAYS),
     });
 
-    res.cookie('sessionId', session.id, {
+    res.cookie('sessionId', session.sessionId, {
         httpOnly: true,
         expires: new Date(Date.now() + THIRTY_DAYS),
     });
-}
+};
 
-export const loginUserController = async (req: Request<{}, {}, LoginDTO>, res: Response) => {
+export const loginUserController = async (req: Request<{}, {}, { email: string; password: string }>, res: Response) => {
     try {
-        const session: Session = await loginUser(req.body);
+        const session = await loginUser(req.body);
+
         setupSession(res, session);
 
         res.status(200).json({
             status: 200,
-            message: 'Successfully logged in an user!',
-            data: { accessToken: session.accessToken },
+            message: 'Successfully logged in!',
+            data: {
+                accessToken: session.accessToken,
+                refreshToken: session.refreshToken, // якщо хочеш, можна не повертати, бо куки вже є
+                user: session.user
+            },
         });
     } catch (error: any) {
         console.error(error);
@@ -36,8 +42,7 @@ export const loginUserController = async (req: Request<{}, {}, LoginDTO>, res: R
             message: error.message || 'Something went wrong!',
         });
     }
-}
-
+};
 export const registerUserController = async (req: Request<{}, {}, RegisterDTO>, res: Response) => {
     try {
         const user = await registerUser(req.body);

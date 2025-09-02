@@ -5,6 +5,9 @@ dotenv.config();
 
 export const dbPool = new Pool({
   connectionString: process.env.CONNECTION_STR,
+  ssl: {
+    rejectUnauthorized: false, 
+  },
 });
 
 const initDb = async (): Promise<void> => {
