@@ -2,11 +2,7 @@ import dotenv from "dotenv";
 import { Pool } from "pg";
 dotenv.config();
 export const dbPool = new Pool({
-    user: "postgres",
-    host: "localhost",
-    database: "trains_db",
-    password: process.env.POSTGRESQL_PASS,
-    port: 5432,
+    connectionString: process.env.CONNECTION_STR,
 });
 const initDb = async () => {
     try {

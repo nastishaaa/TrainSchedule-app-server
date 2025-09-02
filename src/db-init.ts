@@ -4,9 +4,8 @@ import { Pool } from "pg";
 dotenv.config();
 
 export const dbPool = new Pool({
-  connectionString: `postgresql://${process.env.POSTGRES_USER}:${process.env.POSTGRES_PASSWORD}@${process.env.POSTGRES_HOST}.oregon-postgres.render.com/${process.env.POSTGRES_DB}`,
+  connectionString: process.env.CONNECTION_STR,
 });
-
 
 const initDb = async (): Promise<void> => {
   try {
