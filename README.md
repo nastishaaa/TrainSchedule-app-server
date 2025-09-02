@@ -1,123 +1,105 @@
-🚆 Train Schedule App - Backend
+# 🚆 Train Schedule App - Backend
 
-This is the backend service for Train Schedule App, built with TypeScript, Express, and PostgreSQL. It provides API endpoints for managing trains, user authentication, and sessions.
+Backend сервіс для **Train Schedule App**, побудований на **TypeScript**, **Express** та **PostgreSQL**.  
+Надає API для управління поїздами, аутентифікації користувачів та сесій.
 
-🛠️ Features
+---
 
-User Authentication
+## 🛠️ Features
 
-Register, login, and logout users.
+### User Authentication
 
-JWT-based access tokens with refresh tokens.
+- Реєстрація, логін та логаут користувачів.
+- JWT-based **access tokens** з **refresh tokens**.
 
-Train Management
+### Train Management
 
-CRUD operations for trains: create, read, update (PATCH), delete.
+- CRUD операції для поїздів:
+  - `Create`, `Read`, `Update` (PATCH), `Delete`
+- Сортування та фільтрація поїздів за:
+  - Часом відправлення
+  - Станціями
+  - Ціною
 
-Sorting and filtering trains by departure time, stations, or price.
+### Sessions
 
-Sessions
+- Безпечне зберігання **refresh tokens** в **cookies**.
+- Автоматичне очищення прострочених сесій.
 
-Secure refresh tokens stored in cookies.
+### TypeScript
 
-Auto-cleanup of expired sessions.
+- Повністю типізовані контролери, сервіси та запити до бази даних.
 
-TypeScript
+### Error Handling
 
-Fully typed controllers, services, and database queries.
+- Центральна middleware для `404` та загальних помилок.
 
-Error Handling
+---
 
-Centralized middleware for 404 and general errors.
+## ⚡ Tech Stack
 
-⚡ Tech Stack
+- **Node.js + Express**
+- **TypeScript**
+- **PostgreSQL**
+- **pg** для запитів до бази
+- **JWT** для аутентифікації
+- **bcrypt** для хешування паролів
+- **nodemon & ts-node** для розробки
 
-Node.js + Express
+---
 
-TypeScript
+## 📦 Installation
 
-PostgreSQL for database
+1. Клонуємо репозиторій:
 
-pg for database queries
-
-JWT for authentication
-
-bcrypt for password hashing
-
-nodemon & ts-node for development
-
-📦 Installation
-
-Clone the repository:
-
+```bash
 git clone https://github.com/yourusername/train-schedule-app-server.git
 cd train-schedule-app-server
+```
 
-Install dependencies:
+2. Встановлюємо залежності:
 
-``bash
+```bash
 npm install
+```
 
-Create .env file in the root directory with the following variables:
+3. Створюємо .env файл у корені проєкту:
 
+```bash
 POSTGRESQL_PASS=your_db_password
 JWT_SECRET=your_jwt_secret
 
-Start PostgreSQL and ensure the database trains_db exists.
+```
 
-🚀 Running the Server
+4. 🚀 Running the Server
 
-Development mode (with live reload)
-
-``bash
+```bash
 npm run dev
 
-Build and run
+```
 
-``bash
+5. Build та запуск:
+
+```bash
 npm run build
 npm start
 
-build compiles TypeScript into dist/ folder.
+```
 
-start runs the compiled JavaScript files.
+build компілює TypeScript у папку dist/.
 
-Auth
+start запускає скомпільовані JavaScript файли.
+
+🔑 Auth Endpoints
 Method Endpoint Description
-POST /auth/register Register a new user
-POST /auth/login Login a user
-POST /auth/logout Logout a user
-GET /auth/me Get current user info (Bearer)
-Trains
+POST /auth/register Реєстрація нового користувача
+POST /auth/login Логін користувача
+POST /auth/logout Логаут користувача
+GET /auth/me Отримати інформацію про користувача (Bearer)
+
+🚉 Train Endpoints
 Method Endpoint Description
-GET /trains Get all trains
-GET /trains/:id Get train by ID
-POST /trains Create a new train
-PATCH /trains/:id Update train info (admin only)
-DELETE /trains/:id Delete train (admin only)
-
-Note: PATCH and DELETE routes require authentication.
-
-🔒 Authentication
-
-Access tokens are sent via Authorization: Bearer <token> header.
-
-Refresh tokens are stored as httpOnly cookies.
-
-Tokens are required for protected routes like updating or deleting trains.
-
-🧪 Testing
-
-You can use Postman or Insomnia to test all endpoints. Include the Authorization header for protected routes:
-
-Authorization: Bearer <accessToken>
-
-✅ Notes
-
-Passwords are hashed with bcrypt.
-
-Sessions are cleaned on logout to prevent reuse of refresh tokens.
-
-All responses are JSON and include status and message fields for clarity.
-
-TypeScript enforces type safety for controllers and services.
+GET /trains Отримати всі поїзди
+GET /trains/:id Отримати поїзд за ID
+POST /trains Створити новий поїзд
+DELETE /trains/:id Видалити поїзд (auth only)
