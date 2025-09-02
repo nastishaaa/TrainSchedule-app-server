@@ -5,9 +5,7 @@ import dotenv from 'dotenv';
 import randomBytes from 'randombytes';
 import createHttpError from 'http-errors';
 import { THIRTY_DAYS } from '../constants/index.js';
-
 dotenv.config();
-
 export const loginUser = async (payload) => {
     try {
         const { email, password } = payload;
@@ -15,20 +13,22 @@ export const loginUser = async (payload) => {
         const user = userRes.rows[0];
         if (!user)
             throw createHttpError(404, 'User not found');
-        const isEqual = await bcrypt.compare(password, user.password);
-        if (!isEqual) {
+        const userPassword = user.password;
+        const { password: _, ...userWithoutPass } = user;
+        const isEqual = await bcrypt.compare(payload.password, userPassword);
+        if (!isEqual)
             throw createHttpError(401, 'Unauthorized');
-        }
         await dbPool.query(`DELETE FROM sessions WHERE user_id=$1`, [user.id]);
         const accessToken = jwt.sign({ userId: user.id }, process.env.JWT_SECRET, { expiresIn: '1h' });
         const refreshToken = randomBytes(30).toString('base64');
         const refreshTokenValidUntil = new Date(Date.now() + THIRTY_DAYS);
         const sessionRes = await dbPool.query(`INSERT INTO sessions (user_id, access_token, refresh_token, expires_at)
-            VALUES ($1,$2,$3,$4) RETURNING *`, [user.id, accessToken, refreshToken, refreshTokenValidUntil]);
+     VALUES ($1,$2,$3,$4) RETURNING *`, [user.id, accessToken, refreshToken, refreshTokenValidUntil]);
         return {
             accessToken,
             refreshToken,
-            id: sessionRes.rows[0].id
+            sessionId: sessionRes.rows[0].id,
+            user: userWithoutPass
         };
     }
     catch (error) {

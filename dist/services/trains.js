@@ -40,3 +40,8 @@ export const createTrain = async (payload) => {
         throw createHttpError(500, 'Something went wrong!');
     }
 };
+export const deleteTrain = async (id) => {
+    const result = await dbPool.query(`DELETE FROM trains WHERE id=$1 RETURNING id`, [id]);
+    if (result.rows.length === 0)
+        throw createHttpError(404, `Train with id ${id} not found`);
+};

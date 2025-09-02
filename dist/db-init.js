@@ -2,10 +2,10 @@ import dotenv from "dotenv";
 import { Pool } from "pg";
 dotenv.config();
 export const dbPool = new Pool({
-  connectionString: process.env.CONNECTION_STR,
-  ssl: {
-    rejectUnauthorized: false, 
-  },
+    connectionString: process.env.CONNECTION_STR,
+    ssl: {
+        rejectUnauthorized: false,
+    },
 });
 const initDb = async () => {
     try {
