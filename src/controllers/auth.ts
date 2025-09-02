@@ -31,7 +31,7 @@ export const loginUserController = async (req: Request<{}, {}, { email: string; 
             message: 'Successfully logged in!',
             data: {
                 accessToken: session.accessToken,
-                refreshToken: session.refreshToken, // якщо хочеш, можна не повертати, бо куки вже є
+                refreshToken: session.refreshToken,
                 user: session.user
             },
         });
