@@ -4,7 +4,7 @@ import jwt from 'jsonwebtoken';
 import { dbPool } from '../db-init.js';
 
 import { THIRTY_DAYS } from "../constants/index.js";
-import { loginUser, registerUser, logoutUser, deleteTrain } from "../services/auth.js";
+import { loginUser, registerUser, logoutUser } from "../services/auth.js";
 import { LoginDTO, RegisterDTO, Session } from "../types/auth.js"
 
 const setupSession = (res: Response, session: Session) => {
@@ -42,10 +42,13 @@ export const registerUserController = async (req: Request<{}, {}, RegisterDTO>, 
     try {
         const user = await registerUser(req.body);
 
+        const { password, ...userWithoutPassword } = user;
+
+
         res.status(201).json({
             status: 201,
             message: 'Successfully registered a user!',
-            data: user,
+            data: userWithoutPassword,
         });
     } catch (error: any) {
         console.error(error);
@@ -109,14 +112,5 @@ export const getCurrentUser = async (req: Request, res: Response) => {
         });
     } catch (error) {
         return res.status(401).json({ message: "Unauthorized", error });
-    }
-}
-
-export const deleteTrainController = async (req: Request<{ id: string }>, res: Response) => {
-    try {
-        await deleteTrain(+req.params.id);
-        res.status(204).send();
-    } catch (err: any) {
-        res.status(err.status || 500).json({ status: err.status || 500, message: err.message });
     }
 }

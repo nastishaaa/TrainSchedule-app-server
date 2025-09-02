@@ -78,7 +78,7 @@ export const registerUser = async (payload: RegisterPayload): Promise<User> => {
         }
 
         const hashedPass = await bcrypt.hash(password, 10);
-
+        
         const res: QueryResult<User> = await dbPool.query(
             `INSERT INTO users (name, email, password) VALUES ($1,$2,$3) RETURNING *`,
             [name, email, hashedPass]
@@ -91,7 +91,7 @@ export const registerUser = async (payload: RegisterPayload): Promise<User> => {
     }
 }
 
-
 export const logoutUser = async (refreshToken: string): Promise<void> => {
     await dbPool.query(`DELETE FROM sessions WHERE refresh_token=$1`, [refreshToken]);
 }
+

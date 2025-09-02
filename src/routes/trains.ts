@@ -1,7 +1,6 @@
 import { Router } from "express";
 
-import { getTrainsController, getTrainByIdController, createTrainController } from '../controllers/trains.js';
-import { deleteTrain } from "../services/auth.js";
+import { getTrainsController, getTrainByIdController, createTrainController, deleteTrainController } from '../controllers/trains.js';
 import { authorization } from "../middlewares/authorization.js";
 
 const trainsRouter = Router();
@@ -12,6 +11,6 @@ trainsRouter.post('/', createTrainController);
 
 trainsRouter.use(authorization)
 
-trainsRouter.post('/:id', deleteTrain)
+trainsRouter.post('/:id', deleteTrainController)
 
 export default trainsRouter;
