@@ -1,4 +1,4 @@
-import { getTrains, getTrainById, createTrain, deleteTrain } from '../services/trains.js';
+import { getTrains, getTrainById, createTrain, deleteTrain, updateTrain } from '../services/trains.js';
 import createHttpError from 'http-errors';
 export const getTrainsController = async (req, res) => {
     try {
@@ -44,6 +44,23 @@ export const createTrainController = async (req, res) => {
             status: 201,
             message: "Train created successfully",
             data: train
+        });
+    }
+    catch (error) {
+        res.status(500).json({
+            status: 500,
+            message: 'Something went wrong!',
+        });
+    }
+};
+export const updateTrainController = async (req, res) => {
+    try {
+        const id = +req.params.id;
+        const train = updateTrain(id);
+        res.status(200).json({
+            status: 200,
+            message: 'Train updated successfully',
+            data: train,
         });
     }
     catch (error) {

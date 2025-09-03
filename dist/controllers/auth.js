@@ -21,7 +21,7 @@ export const loginUserController = async (req, res) => {
             message: 'Successfully logged in!',
             data: {
                 accessToken: session.accessToken,
-                refreshToken: session.refreshToken, // якщо хочеш, можна не повертати, бо куки вже є
+                refreshToken: session.refreshToken,
                 user: session.user
             },
         });
