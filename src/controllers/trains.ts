@@ -1,6 +1,6 @@
 import { Request, Response, NextFunction } from 'express'
 
-import { getTrains, getTrainById, createTrain, deleteTrain } from '../services/trains.js';
+import { getTrains, getTrainById, createTrain, deleteTrain, updateTrain } from '../services/trains.js';
 import createHttpError from 'http-errors';
 import { Train } from '../types/dbInterface.js';
 
@@ -54,6 +54,24 @@ export const createTrainController = async (req: Request, res: Response) => {
             message: "Train created successfully",
             data: train
         });
+    } catch (error: unknown) {
+        res.status(500).json({
+            status: 500,
+            message: 'Something went wrong!',
+        });
+    }
+}
+
+export const updateTrainController = async (req: Request, res: Response) => {
+    try {
+        const id = +req.params.id;
+        const train = updateTrain(id);
+
+        res.status(200).json({
+            status: 200,
+            message: 'Train updated successfully',
+            data: train,
+        })
     } catch (error: unknown) {
         res.status(500).json({
             status: 500,

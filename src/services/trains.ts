@@ -72,7 +72,40 @@ export const createTrain = async (payload: CreateTrainDTO) => {
     }
 }
 
+export const updateTrain = async (id: number) : Promise<Train> => {
+    try {
+        const existingTrain: QueryResult<Train> = await dbPool.query(
+            `SELECT * FROM trains WHERE id = $1`,
+            [id]
+        );
+
+        if (existingTrain.rows.length === 0) {
+            throw createHttpError(404, `Train with id ${id} not found`);
+        }
+
+        const train = existingTrain.rows[0];
+
+        if (train.seats_available <= 0) {
+            throw createHttpError(400, `No available seats on train ${train.name}`);
+        }
+
+        const updatedResult: QueryResult<Train> = await dbPool.query(
+            `UPDATE trains 
+                SET seats_available = seats_available - 1
+                WHERE id = $1
+                RETURNING *`,
+                [id]
+        );
+
+        return updatedResult.rows[0];
+    } catch (error: any) {
+        console.error(error);
+        throw createHttpError(500, 'Something went wrong!');
+    }
+}
+
 export const deleteTrain = async (id: number): Promise<void> => {
     const result = await dbPool.query(`DELETE FROM trains WHERE id=$1 RETURNING id`, [id]);
     if (result.rows.length === 0) throw createHttpError(404, `Train with id ${id} not found`);
 }
+
