@@ -93,7 +93,11 @@ export const registerUser = async (payload: RegisterPayload): Promise<RegisterRe
             [name, email, hashedPass]
         );
 
-        const accessToken = randomBytes(30).toString('base64');
+        const accessToken = jwt.sign(
+            { userId: res.rows[0].id },
+            process.env.JWT_SECRET as string,
+            { expiresIn: "15m" }
+        );
         const refreshToken = randomBytes(30).toString('base64');
         const refreshTokenValidUntil = new Date(Date.now() + THIRTY_DAYS);
 
