@@ -36,12 +36,15 @@ export const loginUserController = async (req, res) => {
 };
 export const registerUserController = async (req, res) => {
     try {
-        const user = await registerUser(req.body);
-        const { password, ...userWithoutPassword } = user;
+        const userResponse = await registerUser(req.body);
+        const { password, ...safeUser } = userResponse.user;
         res.status(201).json({
             status: 201,
             message: 'Successfully registered a user!',
-            data: userWithoutPassword,
+            data: {
+                ...userResponse,
+                user: safeUser,
+            },
         });
     }
     catch (error) {

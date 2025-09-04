@@ -23,9 +23,16 @@ interface RegisterPayload {
     password: string;
 }
 
+interface RegisterResponse {
+    accessToken: string;
+    refreshToken: string;
+    sessionId: number | string;
+    user: User;
+}
+
 export const loginUser = async (
     payload: LoginPayload
-): Promise<{ accessToken: string; refreshToken: string; sessionId: number; user: {name: string, email: string} }> => {
+): Promise<{ accessToken: string; refreshToken: string; sessionId: number; user: { name: string, email: string } }> => {
     try {
         const { email, password } = payload;
 
@@ -34,40 +41,39 @@ export const loginUser = async (
             [email]
         );
         const user = userRes.rows[0];
-if (!user) throw createHttpError(404, 'User not found');
+        if (!user) throw createHttpError(404, 'User not found');
 
-const userPassword = user.password;
-const { password: _, ...userWithoutPass } = user;
+        const userPassword = user.password;
+        const { password: _, ...userWithoutPass } = user;
 
-const isEqual = await bcrypt.compare(payload.password, userPassword);
-if (!isEqual) throw createHttpError(401, 'Unauthorized');
+        const isEqual = await bcrypt.compare(payload.password, userPassword);
+        if (!isEqual) throw createHttpError(401, 'Unauthorized');
 
-await dbPool.query(`DELETE FROM sessions WHERE user_id=$1`, [user.id]);
+        await dbPool.query(`DELETE FROM sessions WHERE user_id=$1`, [user.id]);
 
-const accessToken = jwt.sign({ userId: user.id }, process.env.JWT_SECRET as string, { expiresIn: '1h' });
-const refreshToken = randomBytes(30).toString('base64');
-const refreshTokenValidUntil = new Date(Date.now() + THIRTY_DAYS);
+        const accessToken = jwt.sign({ userId: user.id }, process.env.JWT_SECRET as string, { expiresIn: '1h' });
+        const refreshToken = randomBytes(30).toString('base64');
+        const refreshTokenValidUntil = new Date(Date.now() + THIRTY_DAYS);
 
-const sessionRes: QueryResult<Session> = await dbPool.query(
-    `INSERT INTO sessions (user_id, access_token, refresh_token, expires_at)
+        const sessionRes: QueryResult<Session> = await dbPool.query(
+            `INSERT INTO sessions (user_id, access_token, refresh_token, expires_at)
      VALUES ($1,$2,$3,$4) RETURNING *`,
-    [user.id, accessToken, refreshToken, refreshTokenValidUntil]
-);
+            [user.id, accessToken, refreshToken, refreshTokenValidUntil]
+        );
 
-return {
-    accessToken,
-    refreshToken,
-    sessionId: sessionRes.rows[0].id,
-    user: userWithoutPass
-};
+        return {
+            accessToken,
+            refreshToken,
+            sessionId: sessionRes.rows[0].id,
+            user: userWithoutPass
+        };
     } catch (error: unknown) {
         console.error(error);
         throw error;
     }
-};
+}
 
-
-export const registerUser = async (payload: RegisterPayload): Promise<User> => {
+export const registerUser = async (payload: RegisterPayload): Promise<RegisterResponse> => {
     try {
         const { name, email, password } = payload;
 
@@ -87,7 +93,23 @@ export const registerUser = async (payload: RegisterPayload): Promise<User> => {
             [name, email, hashedPass]
         );
 
-        return res.rows[0];
+        const accessToken = randomBytes(30).toString('base64');
+        const refreshToken = randomBytes(30).toString('base64');
+        const refreshTokenValidUntil = new Date(Date.now() + THIRTY_DAYS);
+
+        const sessionRes: QueryResult<Session> = await dbPool.query(
+            `INSERT INTO sessions (user_id, access_token, refresh_token, expires_at)
+     VALUES ($1,$2,$3,$4) RETURNING *`,
+            [res.rows[0].id, accessToken, refreshToken, refreshTokenValidUntil]
+        );
+
+
+        return {
+            accessToken,
+            refreshToken,
+            sessionId: sessionRes.rows[0].id,
+            user: res.rows[0],
+        }
     } catch (error: unknown) {
         console.error(error);
         throw error;

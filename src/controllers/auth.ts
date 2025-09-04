@@ -45,15 +45,17 @@ export const loginUserController = async (req: Request<{}, {}, { email: string; 
 };
 export const registerUserController = async (req: Request<{}, {}, RegisterDTO>, res: Response) => {
     try {
-        const user = await registerUser(req.body);
+        const userResponse = await registerUser(req.body);
 
-        const { password, ...userWithoutPassword } = user;
-
+        const { password, ...safeUser } = userResponse.user;
 
         res.status(201).json({
             status: 201,
             message: 'Successfully registered a user!',
-            data: userWithoutPassword,
+            data: {
+                ...userResponse,
+                user: safeUser, 
+            },
         });
     } catch (error: any) {
         console.error(error);

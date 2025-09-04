@@ -45,7 +45,17 @@ export const registerUser = async (payload) => {
         }
         const hashedPass = await bcrypt.hash(password, 10);
         const res = await dbPool.query(`INSERT INTO users (name, email, password) VALUES ($1,$2,$3) RETURNING *`, [name, email, hashedPass]);
-        return res.rows[0];
+        const accessToken = randomBytes(30).toString('base64');
+        const refreshToken = randomBytes(30).toString('base64');
+        const refreshTokenValidUntil = new Date(Date.now() + THIRTY_DAYS);
+        const sessionRes = await dbPool.query(`INSERT INTO sessions (user_id, access_token, refresh_token, expires_at)
+     VALUES ($1,$2,$3,$4) RETURNING *`, [res.rows[0].id, accessToken, refreshToken, refreshTokenValidUntil]);
+        return {
+            accessToken,
+            refreshToken,
+            sessionId: sessionRes.rows[0].id,
+            user: res.rows[0],
+        };
     }
     catch (error) {
         console.error(error);
